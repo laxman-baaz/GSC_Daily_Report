@@ -53,6 +53,15 @@ narrates numbers it is handed; it never fetches or computes them.
 5. **`.github/workflows/gsc-daily.yml`** — cron `'30 0 * * *'` (00:30 UTC = 06:00 IST) + manual
    `workflow_dispatch`. Installs `requirements.txt`, runs `python gsc_report.py`, with all secrets injected
    from **GitHub repo secrets** (same names as the env vars). To change the send time, edit the cron (UTC).
+   **Caveat:** GitHub scheduled crons are best-effort — often minutes-to-an-hour late and occasionally
+   skipped. For reliable on-time delivery, use the AWS path below.
+
+6. **AWS deploy (`Dockerfile`, `lambda_function.py`, `deploy/`)** — the reliable alternative to the GitHub
+   cron. `lambda_function.handler` runs the same `build_report → email` pipeline. `deploy/deploy.sh`
+   (idempotent; run in **AWS CloudShell** — has docker + aws CLI) builds the container, pushes to ECR,
+   creates the Lambda + IAM roles, seeds env vars from a local `secrets.env` (via
+   `deploy/build_env_json.py`), and creates an **EventBridge Scheduler** rule firing `cron(0 6 * * ? *)` in
+   **`Asia/Kolkata`** — native timezone, exact timing. Re-run the script to ship new code or rotate secrets.
 
 ## Config (.env locally / GitHub secrets in CI)
 

@@ -1,4 +1,6 @@
 .env
+secrets.env
+env.json
 *.json
 gsc_preview.html
 __pycache__/

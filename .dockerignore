@@ -1,0 +1,11 @@
+.env
+secrets.env
+*.json
+env.json
+__pycache__/
+*.pyc
+.git/
+.github/
+*.log
+preview.html
+gsc_preview.html
