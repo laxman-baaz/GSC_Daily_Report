@@ -52,13 +52,19 @@ def top_movers(cur_rows, prev_rows, dim="query", metric="clicks", n=10):
     return gainers, losers
 
 
+# Impression floors are tuned for baaz.pro's current volume (~830 impressions/week).
+# Raise these as traffic grows so the tables stay signal, not noise.
+STRIKING_MIN_IMPRESSIONS = 3
+CTR_OPP_MIN_IMPRESSIONS = 10
+
+
 def striking_distance(rows, dim="query", n=15):
     """Position 11-20 with real impressions — page-2 terms to push onto page 1."""
-    hits = [r for r in rows if 10.5 < r["position"] <= 20 and r["impressions"] >= 10]
+    hits = [r for r in rows if 10.5 < r["position"] <= 20 and r["impressions"] >= STRIKING_MIN_IMPRESSIONS]
     return sorted(hits, key=lambda r: r["impressions"], reverse=True)[:n]
 
 
 def ctr_opportunities(rows, dim="query", n=15):
     """High impressions + top-10 position but low CTR — improve titles/meta to earn the clicks."""
-    hits = [r for r in rows if r["impressions"] >= 50 and r["position"] <= 10 and r["ctr"] < 0.02]
+    hits = [r for r in rows if r["impressions"] >= CTR_OPP_MIN_IMPRESSIONS and r["position"] <= 10 and r["ctr"] < 0.02]
     return sorted(hits, key=lambda r: r["impressions"], reverse=True)[:n]
